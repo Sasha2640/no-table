@@ -24,6 +24,17 @@
       button {
         margin-top: 10px;
       }
+      #selectedTable {
+        margin-top: 20px;
+        width: 100%;
+        border: 1px solid #000;
+      }
+      #selectedTable th,
+      #selectedTable td {
+        padding: 5px;
+        border: 1px solid #000;
+        text-align: left;
+      }
     </style>
   </head>
   <body>
@@ -32,6 +43,19 @@
       <!-- Створюємо таблицю через JavaScript -->
     </table>
     <button onclick="submitSelections()">Готово</button>
+
+    <!-- Таблиця для відображення результатів -->
+    <h2>Нещодавно відмічені:</h2>
+    <table id="selectedTable">
+      <thead>
+        <tr>
+          <th>Ім'я</th>
+        </tr>
+      </thead>
+      <tbody id="selectedNamesBody">
+        <!-- Динамічно додані імена -->
+      </tbody>
+    </table>
 
     <script>
       const names = [
@@ -72,16 +96,16 @@
         const emptyHeader = document.createElement("th");
         headerRow.appendChild(emptyHeader); // Пустий заголовок для першого стовпця
 
-        for (let col = 1; col <= 32; col++) {
-          // 32 стовпця, з додатковим справа
+        for (let col = 1; col <= 31; col++) {
+          // 31 стовпець (без останнього нового стовпця)
           const th = document.createElement("th");
-          th.textContent = col <= 31 ? col : "Новий стовпець"; // Останній стовпець з назвою
+          th.textContent = col;
           headerRow.appendChild(th);
         }
         table.appendChild(headerRow);
 
         for (let row = 1; row <= 25; row++) {
-          // 25 рядків, оскільки ми видаляємо 2 останні
+          // 25 рядків
           const tr = document.createElement("tr");
 
           // Створюємо перший стовпець з іменами
@@ -90,12 +114,12 @@
           tr.appendChild(nameTd);
 
           // Створюємо решту стовпців з чекбоксами
-          for (let col = 2; col <= 32; col++) {
-            // 32 стовпця
+          for (let col = 2; col <= 31; col++) {
+            // 31 стовпець
             const td = document.createElement("td");
             const checkbox = document.createElement("input");
             checkbox.type = "checkbox";
-            checkbox.dataset.name = names[row - 1]; // Додаємо ім'я до кожного чекбокса
+            checkbox.dataset.name = names[row - 1];
             checkbox.dataset.row = row;
             checkbox.dataset.col = col;
 
@@ -123,13 +147,16 @@
         }
       }
 
-      // Функція для виведення результатів
+      // Функція для виведення результатів у таблицю
       function submitSelections() {
         let selectedNames = new Set();
         const checkboxes = document.querySelectorAll(
           'input[type="checkbox"]:checked'
         );
         const currentTime = Date.now();
+        const selectedNamesBody = document.getElementById("selectedNamesBody");
+
+        selectedNamesBody.innerHTML = ""; // Очищаємо попередній список
 
         checkboxes.forEach((checkbox) => {
           const row = checkbox.dataset.row;
@@ -142,16 +169,23 @@
           }
         });
 
+        // Додаємо імена у таблицю
         if (selectedNames.size > 0) {
-          alert(
-            "Ви відмітили за останні 10 хвилин наступних людей:\n" +
-              Array.from(selectedNames).join("\n")
-          );
+          selectedNames.forEach((name) => {
+            const tr = document.createElement("tr");
+            const td = document.createElement("td");
+            td.textContent = name;
+            tr.appendChild(td);
+            selectedNamesBody.appendChild(tr);
+          });
         } else {
-          alert("За останні 10 хвилин жодного не відмічено.");
+          const tr = document.createElement("tr");
+          const td = document.createElement("td");
+          td.textContent = "За останні 10 хвилин жодного не відмічено.";
+          tr.appendChild(td);
+          selectedNamesBody.appendChild(tr);
         }
       }
-
       window.onload = createTable;
     </script>
   </body>
